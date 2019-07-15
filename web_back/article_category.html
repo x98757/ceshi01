@@ -118,7 +118,7 @@
             $('#addModal').modal('hide');
           });
 
-          $('#model_add').click(function(){
+      /*     $('#model_add').click(function(){
             alert('add');
             $('#addModal').modal('hide');
           });
@@ -128,9 +128,109 @@
                 $('#addModal .modal-title').html('修改分类名称');
                 $('#addModal').modal('show');
               }
-          })      
+          }) */      
       </script>
+      <script src="./js/template-web.js"></script>
+      <script id="tmp" type="text/html">
+      {{each data }}
 
+
+      <tr>
+          <td>{{$value.name}}</td>
+          <td>{{$value.slug}}</td>
+          <td class="text-center">
+
+            <a href="#" data-id="{{$value.id}}" class="btn btn-info btn-xs btn-edit">编辑</a>
+            <a href="#" data-id="{{$value.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
+          </td>
+      </tr>
+      {{/each}}
+
+      </script>
+      
+      <script>
+      $(function(){
+          function getData (){
+              $.ajax({
+                  url:'http://localhost:8000/admin/category_search',
+                  success:function(backData){
+                      if(backData.code == 200){
+                          var resHtml = template('tmp',backData);
+                          $('tbody').html(resHtml);
+                      }
+                  }
+              })
+          }
+          getData();
+
+          $('#model_add').click(function(){
+              if($(this).hasClass('btn-success')){
+                  var data = $('.modal-body form').serialize();
+                  $.post({
+                      url:"http://localhost:8000/admin/category_edit",
+                      data:data,
+                      success:function(backData){
+                          if(backData.code == 200){
+                              alert('修改成功!');
+                              getData();
+                          }
+                      }
+                  })
+              }else{
+                  var cateName = $('#recipient-name').val().trim();
+                  var cateSlug = $('#recipient-slug').val().trim();
+                  $.post({
+                      url:"http://localhost:8000/admin/category_add",
+                      data:{
+                          name: cataName,
+                          slug:cateSlug
+                      },
+                      success:function(backData){
+                          if(backData.code == 200){
+                              getData();
+                          }
+                      }
+                  })
+              }
+              $('#addModal').modal('hide');
+          })
+          $('.btnAddCate').on('click',function(){
+              $('#addModal .modal-title').html('新增分类');
+              $('#model_add').text('新增').removeClass('btn-success');
+          })
+          $('tbody').on('click','.btn-edit',function(){
+              $('#addModal .modal-title').html('修改分类');
+              $('#model_add').text('修改').addClass('btn-success');
+
+              var id = $(this).attr('data-id');
+              var slug = $(this).parent().prev().text();
+              var name = $(this).parent().prev().prev().text();
+
+            $('.modal-body .id').val(id);
+            $('.modal-body .name').val(name);
+            $('.modal-body .slug').val(slug);
+            $('#addModal').modal('show');
+          });
+          $('tbody').on('click','.btn-delete',function(e){
+            e.preventDefault();
+            if(confirm('你确定要删除吗?')){
+                var that = $(this);
+                var cateId = $(this).attr('data-id');
+                $.ajax({
+                    type;'post',
+                    url:'http://localhost:8000/admin/category_delete',
+                    data:{ id: cateId},
+                    success:function(backData){
+                        if(backData.code == 200){
+                            that.parent().parent().remove();
+                        }
+                    }
+                })
+            }
+          })
+      })
+      
+      </script>
 </body>
 
 </html>
