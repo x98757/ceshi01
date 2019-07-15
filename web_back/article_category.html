@@ -217,7 +217,7 @@
                 var that = $(this);
                 var cateId = $(this).attr('data-id');
                 $.ajax({
-                    type;'post',
+                    type:'post',
                     url:'http://localhost:8000/admin/category_delete',
                     data:{ id: cateId},
                     success:function(backData){
